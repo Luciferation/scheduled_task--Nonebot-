@@ -13,7 +13,11 @@ TODO
 
 ## 安装插件
 
-![](C:\Users\Lucifer\AppData\Roaming\Typora\typora-user-images\image-20220410112538636.png)
+![](https://github.com/Luciferation/Image/blob/master/Image/ImageOfScheduledTask/0.png)
+
+```python
+将代码放入plugins即可
+```
 
 ## 两种触发方式
 
@@ -24,9 +28,7 @@ TODO
 # 因为无需命令, 为了防止误触发, 所以 提醒我|[和对跟]我说 是必须的
 ```
 
-![image-20220410105120344](C:\Users\Lucifer\AppData\Roaming\Typora\typora-user-images\image-20220410105120344.png)
-
-![image-20220410105220494](C:\Users\Lucifer\AppData\Roaming\Typora\typora-user-images\image-20220410105220494.png)![](C:\Users\Lucifer\AppData\Roaming\Typora\typora-user-images\image-20220410105607224.png)
+![](https://github.com/Luciferation/Image/blob/master/Image/ImageOfScheduledTask/0.png)
 
 ```python
 # 正则表达式 (如下)
@@ -42,13 +44,13 @@ TODO
 # 因为有命令, 不容易误触发, 所以 提醒我|[和对跟]我说 可有可无
 ```
 
-![image-20220410165236419](C:\Users\Lucifer\AppData\Roaming\Typora\typora-user-images\image-20220410165236419.png)
+
 
 ```python
 # 正则表达式如下
 ```
 
-![image-20220410111624013](C:\Users\Lucifer\AppData\Roaming\Typora\typora-user-images\image-20220410111624013.png)
+
 
 ## 数据存储
 
@@ -60,5 +62,5 @@ TODO
 (结构如下图)
 ```
 
-![image-20220410111734984](C:\Users\Lucifer\AppData\Roaming\Typora\typora-user-images\image-20220410111734984.png)
+
 

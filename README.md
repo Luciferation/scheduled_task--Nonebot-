@@ -6,18 +6,14 @@
 TODO
 	支持模糊语句 √
 	支持任务自动存储至本地json, 防止丢失任务 √
-    支持汉语数字 (暂时只实现了如"九千九百九十九时50m20S后提醒我手冲"之类的"后"字句)(详情见正则表达式) 待完善
-	查询任务 待做
-    删改任务 待做
+    支持汉语数字 (暂时只实现了如"九千九百九十九时50m20S后提醒我手冲"之类的"后"字句)(详情见正则表达式)
+	查询任务
+    删改任务
 ```
 
 ## 安装插件
 
 ![](https://github.com/Luciferation/Image/blob/master/Image/ImageOfScheduledTask/0.png)
-
-```python
-将代码放入plugins即可
-```
 
 ## 两种触发方式
 
@@ -28,13 +24,15 @@ TODO
 # 因为无需命令, 为了防止误触发, 所以 提醒我|[和对跟]我说 是必须的
 ```
 
-![](https://github.com/Luciferation/Image/blob/master/Image/ImageOfScheduledTask/0.png)
+![](https://github.com/Luciferation/Image/blob/master/Image/ImageOfScheduledTask/11.png)
+
+![](https://github.com/Luciferation/Image/blob/master/Image/ImageOfScheduledTask/12.png?raw=true)
 
 ```python
 # 正则表达式 (如下)
 ```
 
-![image-20220410111148046](C:\Users\Lucifer\AppData\Roaming\Typora\typora-user-images\image-20220410111148046.png)
+![image-20220410111148046](https://github.com/Luciferation/Image/blob/master/Image/ImageOfScheduledTask/15.png)
 
 ### 二 有命令触发
 
@@ -44,13 +42,13 @@ TODO
 # 因为有命令, 不容易误触发, 所以 提醒我|[和对跟]我说 可有可无
 ```
 
-
+![image-20220410165236419](https://github.com/Luciferation/Image/blob/master/Image/ImageOfScheduledTask/23.png?raw=true)
 
 ```python
 # 正则表达式如下
 ```
 
-
+![image-20220410111624013](https://github.com/Luciferation/Image/blob/master/Image/ImageOfScheduledTask/25.png?raw=true)
 
 ## 数据存储
 
@@ -62,5 +60,5 @@ TODO
 (结构如下图)
 ```
 
-
+![image-20220410111734984](https://github.com/Luciferation/Image/blob/master/Image/ImageOfScheduledTask/30.png?raw=true)
 

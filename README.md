@@ -18,6 +18,10 @@ TODO
 
 ## 安装插件
 
+```python
+把scheduled_task放入plugins即可
+```
+
 ![](https://github.com/Luciferation/Image/blob/master/Image/ImageOfScheduledTask/0.png)
 
 ## 添加任务

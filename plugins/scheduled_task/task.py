@@ -6,7 +6,7 @@ import sys
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from nonebot import get_bot
-
+import time
 json_path = r'aqua/plugins/scheduled_task/tasks.json'  # windows
 
 
@@ -19,10 +19,12 @@ class Task:
     tasks_dict = {}
     the_max_tasks_number = 1000
     is_task_id_available = [1 for i in range(the_max_tasks_number)]
+    bot = None
 
     class __KEY:
         something: str = "something"
         time_appointed: str = "time_appointed"
+        time_formatted: str = "time_formatted"
         time_relative_hour: str = "time_relative_hour"
         time_relative_minute: str = "time_relative_minute"
         time_relative_second: str = "time_relative_second"
@@ -249,8 +251,14 @@ class Task:
 
     @staticmethod
     async def send_msg(msg: str, owner_id: str):
-        bot = get_bot()
-        await bot.call_api(
+        #  这里为了真实, 会根据信息长度, 停顿
+        len_of_msg = len(msg)
+        time_pause = (len_of_msg + 1) / 20
+        if time_pause > 1:
+            time_pause = 1
+        time.sleep(time_pause)
+
+        await Task.bot.call_api(
             "send_private_msg",
             **{
                 "message": msg,
@@ -272,7 +280,6 @@ class Task:
         Task.store_tasks_in_json()
 
     async def send_the_remind(self):
-        bot = get_bot()
         msg = random.choice(
             [
                 "该" + self.something + "了",
@@ -280,13 +287,7 @@ class Task:
                 "已经到" + self.something + "的时候了"
             ]
         )
-        await bot.call_api(
-            "send_private_msg",
-            **{
-                "message": msg,
-                "user_id": self.owner_id,
-            },
-        )
+        await Task.send_msg(msg=msg, owner_id=self.owner_id)
         self.pop_from_dict()
         Task.store_tasks_in_json()
 
@@ -418,11 +419,30 @@ class Task:
 
     @staticmethod
     async def init():
+        Task.bot = get_bot()
         Task.load_from_json()
         Task.set_scheduler()
         await Task.set_tasks_from_dict()
 
         print("定时任务初始化~")
+
+    @staticmethod  # 查询任务
+    async def read(owner_id: str):
+        msg = ""
+        if owner_id in Task.tasks_dict:
+            msg = "↑ 契约 ↑\n"
+            for key, value in Task.tasks_dict[owner_id].items():
+                msg += "<" + key + "> " + value[Task.__KEY.time_formatted] + "  " + value[Task.__KEY.something] + "\n"
+            msg = msg[:-1]
+        else:
+            msg = "好像没有什么重要的事"
+        # print(msg)
+        await Task.send_msg(msg=msg, owner_id=owner_id)
+
+    @staticmethod
+    def delete(owner_id: str, task_id: str):
+        Task.pop_task_from_dict(owner_id, task_id)
+        Task.store_tasks_in_json()
 
 
 error_task = Task(time_appointed=None, task_dict={}, is_error_task=True, owner_id="-1")
@@ -536,8 +556,9 @@ class Calculator:
 if __name__ == '__main__':
     json_path = 'tasks.json'
     task1_str = "九千九百九十九时50m20S后提醒我手冲"
-    # task2_str = "30s后吃饭"
+    task2_str = "30s后吃饭"
     print('*' * 100)
     task1 = Calculator.get_task(task_str=task1_str, owner_id='3367436163')
-    # task2 = Calculator.get_task(task_str=task2_str, owner_id='3367436163')
+    task2 = Calculator.get_task(task_str=task2_str, owner_id='3367436163')
     print(Task.tasks_dict)
+    Task.read("3367436163")

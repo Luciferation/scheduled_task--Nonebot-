@@ -1,21 +1,26 @@
 # Aqua插件 一 定时提醒1.0
 
 ```python
-由于功能太多, 只好逐个做起
-定时任务又是最实用的功能, 所以先做它
+萌新开发的第一个作品, 因为确实有定时提醒的需求, 又不太喜欢闹钟, 就做了这个. 已经有帮到自己和室友很多.
+分享给大家, 希望大家能够喜欢, 第一次开发, 水平有限, 欢迎大家批评和建议^
+```
+
+```python
 TODO
 	支持模糊语句 √
-	支持任务自动存储至本地json, 防止丢失任务 √
+	支持任务自动存储, 防止丢失任务 √
     支持汉语数字 (暂时只实现了如"九千九百九十九时50m20S后提醒我手冲"之类的"后"字句)(详情见正则表达式)
-	查询任务
-    删改任务
+	查询任务 √
+    删改任务 √
+    支持定期任务 在做了...
+    ...
 ```
 
 ## 安装插件
 
 ![](https://github.com/Luciferation/Image/blob/master/Image/ImageOfScheduledTask/0.png)
 
-## 两种触发方式
+## 添加任务
 
 ### 一 无命令触发
 
@@ -50,15 +55,29 @@ TODO
 
 ![image-20220410111624013](https://github.com/Luciferation/Image/blob/master/Image/ImageOfScheduledTask/25.png?raw=true)
 
-## 数据存储
+## 查询任务
 
 ```python
-任务存储是自动进行的
-	插件在bot运行并成功建立连接后, 会从Task.json载入任务
-    有新任务时会自动, 写入json
-    任务执行完毕后, 会自动从json中删除
-(结构如下图)
+支持语句:
+    契约查询
+    查询契约
+	最近有什么事吗
+    最近有什么事吗?
+正则: "(最近有什么事吗\??)|(契约查询)|(查询契约)"
 ```
 
-![image-20220410111734984](https://github.com/Luciferation/Image/blob/master/Image/ImageOfScheduledTask/30.png?raw=true)
+![read_tasks0](https://github.com/Luciferation/Image/blob/master/Image/ImageOfScheduledTask/read_tasks0.png)
 
+## 删除任务
+
+```python
+支持语句:
+    不用提醒我契约13了
+	删除13
+    忘记13
+	忘记契约13
+    ...
+正则: "(忘记|不用提醒我|删除)(契约)?(?P<task_id>\d+)吧?了?"
+```
+
+![delete_task0](https://github.com/Luciferation/Image/blob/master/Image/ImageOfScheduledTask/delete_task0.png)

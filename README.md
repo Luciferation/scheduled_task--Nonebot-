@@ -9,20 +9,40 @@
 TODO
 	支持模糊语句 √
 	支持任务自动存储, 防止丢失任务 √
-    支持汉语数字 (暂时只实现了如"九千九百九十九时50m20S后提醒我手冲"之类的"后"字句)(详情见正则表达式)
+    支持汉语数字 √
 	查询任务 √
     删改任务 √
-    支持定期任务 在做了...
+    支持定期任务 √
+    内置事件(早安, 晚安, 天冷提醒, 课表提醒) 在做了
     ...
 ```
 
-## 安装插件
+## 安装
 
 ```python
-把scheduled_task放入plugins即可
+把scheduled_task放入plugins
+然后把task.py中的json_path改成自己的即可
+
+本插件基于
+	自然语言处理库jionlp
+    定时任务框架apscheduler
+    如果没有的话, 先用pip装一下
 ```
 
-![](https://github.com/Luciferation/Image/blob/master/Image/ImageOfScheduledTask/0.png)
+## 新 · 定期任务 period_tasks
+
+![](https://github.com/Luciferation/Image/blob/master/Image/ImageOfScheduledTask2.0/1.png)
+
+![](https://github.com/Luciferation/Image/blob/master/Image/ImageOfScheduledTask2.0/2.png)
+
+![](https://github.com/Luciferation/Image/blob/master/Image/ImageOfScheduledTask2.0/3.png)
+
+```cpp
+类似的:
+	每天早上8点和我说早安
+	每天晚上10点和我说晚安
+	等模糊定期任务
+```
 
 ## 添加任务
 
@@ -36,12 +56,6 @@ TODO
 ![](https://github.com/Luciferation/Image/blob/master/Image/ImageOfScheduledTask/11.png)
 
 ![](https://github.com/Luciferation/Image/blob/master/Image/ImageOfScheduledTask/12.png?raw=true)
-
-```python
-# 正则表达式 (如下)
-```
-
-![image-20220410111148046](https://github.com/Luciferation/Image/blob/master/Image/ImageOfScheduledTask/15.png)
 
 ### 二 有命令触发
 

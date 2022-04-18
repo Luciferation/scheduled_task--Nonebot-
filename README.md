@@ -67,12 +67,6 @@ TODO
 
 ![image-20220410165236419](https://github.com/Luciferation/Image/blob/master/Image/ImageOfScheduledTask/23.png?raw=true)
 
-```python
-# 正则表达式如下
-```
-
-![image-20220410111624013](https://github.com/Luciferation/Image/blob/master/Image/ImageOfScheduledTask/25.png?raw=true)
-
 ## 查询任务
 
 ```python

@@ -20,7 +20,7 @@ class Task:
     the_max_tasks_number = 1000
     is_task_id_available = [1 for i in range(the_max_tasks_number)]
     bot = None
-    match_rule = r"(?P<time>(.*)+?)(提醒我|[和对跟]我说)(?P<something>(.*)+)"
+    match_rule = r"(?P<time>(.*)?)(提醒我|[和对跟]我说)(?P<something>(.*))"
 
     class KEY:
         # 任务
@@ -361,3 +361,26 @@ class Task:
         Task.scheduler.remove_job(task_id)
         Task.pop_task_from_dict(owner_id, task_id)
         Task.store_tasks_in_json()
+
+
+if __name__ == '__main__':
+    json_path = 'tasks1.json'
+
+    print('*' * 100)
+    id = '3367436163'
+    tasks_list = {
+        "九千九百九十九时50m20S后提醒我手冲",
+        "每周一晚上提醒我吃饭",
+        "30分钟后提醒我第二次打卡",
+        "4月20日早上提醒我晚上有实验",
+        "每天晚上10点和我说晚安"
+    }
+    for task in tasks_list:
+        Task(task_str=task, owner_id=id)
+
+    Task.pop_task_from_dict(id, '0')
+    Task.pop_task_from_dict(id, '1')
+    Task.pop_task_from_dict(id, '2')
+    Task.pop_task_from_dict(id, '3')
+    Task.pop_task_from_dict(id, '4')
+    Task.store_tasks_in_json()

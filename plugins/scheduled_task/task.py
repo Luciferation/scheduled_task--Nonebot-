@@ -104,7 +104,8 @@ class Task:
                 print(self.something, "解析成功")
         except ValueError as result:
             self.type = Task.KEY.error_task
-            print("解析失败")
+            self.error_info = result
+            print("解析失败", result)
         except Exception:
             self.type = Task.KEY.error_task
             print("不知道怎么了")
@@ -156,7 +157,7 @@ class Task:
 
     @staticmethod
     async def send_miss(time_appointed: str, something: str, owner_id: str, task_id: str, msg: str = ""):
-        if msg is "":
+        if msg == "":
             msg = random.choice(
                 [
                     time_appointed + something + "错过了" + " 没关系吗?",
@@ -234,6 +235,12 @@ class Task:
                                        self.time_delta)
         elif self.type == Task.KEY.error_task:
             Task.is_task_id_available[int(self.task_id)] = 1
+            # print(self.error_info.__str__())
+            await Task.send_msg(
+                # re.match(r"\'(?P<un_analysed_text>(.*)+?)\'", self.error_info.__str__()).groupdict()['un_analysed_text'],
+                self.error_info.__str__(),
+                owner_id=self.owner_id
+            )
 
     @staticmethod
     def set_scheduler():

@@ -86,28 +86,33 @@ class Task:
         try:
             if result is not None:
                 self.something = result[Task.KEY.something]
-                self.time_dict: dict = jionlp.parse_time(result[Task.KEY.time])
-                print(self.time_dict)
-                if self.time_dict[Task.KEY.type] == 'time_point':
-                    self.type = Task.KEY.point_tasks
-                    self.time_appointed = self.time_dict[Task.KEY.time][0]
-                elif self.time_dict[Task.KEY.type] == 'time_period':
-                    self.type = Task.KEY.period_tasks
-                    if self.time_dict[Task.KEY.time][Task.KEY.point] is None:
-                        self.time_appointed = datetime.datetime.now().isoformat()
-                    else:
-                        self.time_appointed = self.time_dict[Task.KEY.time][Task.KEY.point][Task.KEY.time][0]
-                    self.time_delta = self.time_dict[Task.KEY.time][Task.KEY.delta]
-                print(self.task_id, self.owner_id, self.something, self.time_dict, self.type)
-                self.add_to_dict()
-                Task.store_tasks_in_json()
-                print(self.something, "解析成功")
+                # 不指定时间则默认每天早上8点提醒
+                if result[Task.KEY.time] == '':
+                    self.__init__(owner_id, "每天早上8点提醒我" + self.something)
+                else:
+                    self.time_dict: dict = jionlp.parse_time(result[Task.KEY.time])
+                    print(self.time_dict)
+                    if self.time_dict[Task.KEY.type] == 'time_point':
+                        self.type = Task.KEY.point_tasks
+                        self.time_appointed = self.time_dict[Task.KEY.time][0]
+                    elif self.time_dict[Task.KEY.type] == 'time_period':
+                        self.type = Task.KEY.period_tasks
+                        if self.time_dict[Task.KEY.time][Task.KEY.point] is None:
+                            self.time_appointed = datetime.datetime.now().isoformat()
+                        else:
+                            self.time_appointed = self.time_dict[Task.KEY.time][Task.KEY.point][Task.KEY.time][0]
+                        self.time_delta = self.time_dict[Task.KEY.time][Task.KEY.delta]
+                    print(self.task_id, self.owner_id, self.something, self.time_dict, self.type)
+                    self.add_to_dict()
+                    Task.store_tasks_in_json()
+                    print(self.something, "解析成功")
         except ValueError as result:
             self.type = Task.KEY.error_task
             self.error_info = result
             print("解析失败", result)
         except Exception:
             self.type = Task.KEY.error_task
+            self.error_info = "Aqua出错了, 但是不知道为什么"
             print("不知道怎么了")
 
     def get_task_id(self) -> str:
@@ -369,7 +374,6 @@ if __name__ == '__main__':
     print('*' * 100)
     id = '3367436163'
     tasks_list = {
-        "九千九百九十九时50m20S后提醒我手冲",
         "每周一晚上提醒我吃饭",
         "30分钟后提醒我第二次打卡",
         "4月20日早上提醒我晚上有实验",
@@ -382,5 +386,4 @@ if __name__ == '__main__':
     Task.pop_task_from_dict(id, '1')
     Task.pop_task_from_dict(id, '2')
     Task.pop_task_from_dict(id, '3')
-    Task.pop_task_from_dict(id, '4')
     Task.store_tasks_in_json()

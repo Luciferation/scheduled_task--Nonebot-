@@ -91,7 +91,7 @@ class Task:
                     Task.return_task_id(self.task_id)
                     self.__init__(owner_id, "每天早上8点提醒我" + self.something)
                 else:
-                    self.time_dict: dict = jionlp.parse_time(result[Task.KEY.time])
+                    self.time_dict: dict = jionlp.parse_time(result[Task.KEY.time], time_base=time.time())
                     print(self.time_dict)
                     if self.time_dict[Task.KEY.type] == 'time_point':
                         self.type = Task.KEY.point_tasks

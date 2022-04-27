@@ -212,6 +212,11 @@ class Task:
                 break
         else:
             if time_delta.years == 0 and time_delta.months == 0:
+                print(datetime_appointed)
+                if time_delta.seconds == 0:
+                    datetime_appointed -= datetime.timedelta(seconds=datetime_appointed.second)
+                    if time_delta.minutes == 0:
+                        datetime_appointed -= datetime.timedelta(seconds=datetime_appointed.minute)
                 Task.scheduler.add_job(
                     func=Task.send_period_remind,
                     trigger='interval',

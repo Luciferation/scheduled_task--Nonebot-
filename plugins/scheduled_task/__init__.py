@@ -30,7 +30,7 @@ async def handle1():
 async def handle2(event: Event):
     the_task = Task(task_str=event.get_plaintext(), owner_id=event.get_user_id())
     await scheduledTask_create1.send(
-        f"<{the_task.time_appointed} {the_task.time_delta if the_task.type == Task.KEY.period_tasks else ''} {the_task.something}> 契约缔结! \n ＯＫ(ゝω・´★)"
+        f"<{the_task.task_id}> <{the_task.time_appointed} {the_task.time_delta if the_task.type == Task.KEY.period_tasks else ''} {the_task.something}> 契约缔结! \n ＯＫ(ゝω・´★)"
     )
     await the_task.set_the_task()
 
@@ -44,7 +44,8 @@ async def handle(event: Event):
     if the_task.type == Task.KEY.error_task:
         msg = "听不懂诶, 换种说法吧"
     else:
-        msg = f"<{the_task.time_appointed} {the_task.time_delta if the_task.type == Task.KEY.period_tasks else ''} {the_task.something}> 契约缔结! \n ＯＫ(ゝω・´★)"
+        msg = f"<{the_task.task_id}> <{the_task.time_appointed} {the_task.time_delta if the_task.type == Task.KEY.period_tasks else ''} {the_task.something}> 契约缔结! \n ＯＫ(ゝω・´★)"
+
     await the_task.set_the_task()
     await scheduledTask2_create2.send(msg)
 

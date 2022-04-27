@@ -12,7 +12,6 @@ import time
 json_path = r'aqua/plugins/scheduled_task/tasks.json'  # windows
 
 
-
 class Task:
     scheduler: AsyncIOScheduler = None
     is_scheduler_running: bool = False
@@ -78,6 +77,7 @@ class Task:
                     )
 
     def __init__(self, owner_id: str, task_str: str):
+        self.error_info = None
         self.owner_id = owner_id
         self.type = Task.KEY.un_analysed_task
         self.task_id = self.get_task_id()
@@ -88,9 +88,10 @@ class Task:
                 self.something = result[Task.KEY.something]
                 # 不指定时间则默认每天早上8点提醒
                 if result[Task.KEY.time] == '':
+                    Task.return_task_id(self.task_id)
                     self.__init__(owner_id, "每天早上8点提醒我" + self.something)
                 else:
-                    self.time_dict: dict = jionlp.parse_time(result[Task.KEY.time], time_base=time.time())
+                    self.time_dict: dict = jionlp.parse_time(result[Task.KEY.time])
                     print(self.time_dict)
                     if self.time_dict[Task.KEY.type] == 'time_point':
                         self.type = Task.KEY.point_tasks
@@ -106,7 +107,6 @@ class Task:
                     self.add_to_dict()
                     Task.store_tasks_in_json()
                     print(self.something, "解析成功")
-                    print(self.type, self.time_appointed, self.something)
         except ValueError as result:
             self.type = Task.KEY.error_task
             self.error_info = result
@@ -124,6 +124,10 @@ class Task:
         else:
             self.type = Task.KEY.error_task
             return str(-1)
+
+    @staticmethod
+    def return_task_id(task_id: str):
+        Task.is_task_id_available[int(task_id)] = 1
 
     # 分析任务字典, 设置something, 和timeAppointed
 
@@ -198,14 +202,6 @@ class Task:
         }
         time_delta = relativedelta(**time_delta)
         while datetime_appointed < datetime.datetime.now():
-            # datetime_appointed = datetime.datetime(
-            #     year=datetime_appointed.year + int(time_delta['years']),
-            #     month=datetime_appointed.month + int(time_delta['months']),
-            #     day=datetime_appointed.day + int(time_delta['days']),
-            #     hour=datetime_appointed.hour + int(time_delta['hours']),
-            #     minute=datetime_appointed.minute + int(time_delta['minutes']),
-            #     second=datetime_appointed.second + int(time_delta['seconds']),
-            # )
             datetime_appointed = datetime_appointed + time_delta
             cnt += 1
             if cnt == 100:
@@ -215,23 +211,45 @@ class Task:
                 )
                 break
         else:
-            Task.scheduler.add_job(
-                Task.scheduler.add_job, 'date', next_run_time=datetime_appointed,
-                kwargs={
-                    'func': Task.send_period_remind,
-                    'trigger': 'cron',
-                    'id': task_id,
-                    **{
-                        'year': f'*/{time_delta.years}' if time_delta.years != 0 else None,
-                        'month': f'*/{time_delta.months}' if time_delta.months != 0 else None,
-                        'day': f'*/{time_delta.days}' if time_delta.days != 0 else None,
-                        'hour': f'*/{time_delta.hours}' if time_delta.hours != 0 else None,
-                        'minute': f'*/{time_delta.minutes}' if time_delta.minutes != 0 else None,
-                        'second': f'*/{time_delta.seconds}' if time_delta.seconds != 0 else None
-                    },
-                    'kwargs': {'something': something, 'owner_id': owner_id}
-                }
-            )
+            if time_delta.years == 0 and time_delta.months == 0:
+                Task.scheduler.add_job(
+                    func=Task.send_period_remind,
+                    trigger='interval',
+                    next_run_time=datetime_appointed,
+                    id=task_id,
+                    days=time_delta.days,
+                    hours=time_delta.hours,
+                    minutes=time_delta.minutes,
+                    seconds=time_delta.seconds,
+                    kwargs={'something': something, 'owner_id': owner_id}
+                )
+            else:
+                Task.scheduler.add_job(
+                    func=Task.send_period_remind,
+                    trigger='cron',
+                    next_run_time=datetime_appointed,
+                    id=task_id,
+                    **Task.get_cron_dict(datetime_appointed, time_delta),
+                    kwargs={'something': something, 'owner_id': owner_id}
+                )
+            # Task.scheduler.print_jobs()
+
+    @staticmethod
+    def get_cron_dict(date_appointed, time_delta) -> dict:
+        return {
+            'year': f'*/{time_delta.years}',
+            'month': f'{date_appointed.month}',
+            'day': f'{date_appointed.day}',
+            'hour': f'{date_appointed.hour}',
+            'minute': f'{date_appointed.minute}',
+            'second': f'{date_appointed.second}',
+        } if time_delta.years != 0 else {
+            'month': f'*/{time_delta.months}',
+            'day': f'{date_appointed.day}',
+            'hour': f'{date_appointed.hour}',
+            'minute': f'{date_appointed.minute}',
+            'second': f'{date_appointed.second}',
+        }
 
     async def set_the_task(self):
         if self.type == Task.KEY.point_tasks:
@@ -240,7 +258,8 @@ class Task:
             await Task.set_period_task(self.owner_id, self.task_id, self.something, self.time_appointed,
                                        self.time_delta)
         elif self.type == Task.KEY.error_task:
-            Task.is_task_id_available[int(self.task_id)] = 1
+            # Task.is_task_id_available[int(self.task_id)] = 1
+            Task.return_task_id(self.task_id)
             # print(self.error_info.__str__())
             await Task.send_msg(
                 # re.match(r"\'(?P<un_analysed_text>(.*)+?)\'", self.error_info.__str__()).groupdict()['un_analysed_text'],
@@ -311,13 +330,15 @@ class Task:
             if Task.KEY.point_tasks in Task.tasks_dict[owner_id]:
                 if task_id in Task.tasks_dict[owner_id][Task.KEY.point_tasks]:
                     Task.tasks_dict[owner_id][Task.KEY.point_tasks].pop(task_id)
-                    Task.is_task_id_available[int(task_id)] = 1
+                    # Task.is_task_id_available[int(task_id)] = 1
+                    Task.return_task_id(task_id)
                     if len(Task.tasks_dict[owner_id][Task.KEY.point_tasks]) == 0:
                         Task.tasks_dict[owner_id].pop(Task.KEY.point_tasks)
             if Task.KEY.period_tasks in Task.tasks_dict[owner_id]:
                 if task_id in Task.tasks_dict[owner_id][Task.KEY.period_tasks]:
                     Task.tasks_dict[owner_id][Task.KEY.period_tasks].pop(task_id)
-                    Task.is_task_id_available[int(task_id)] = 1
+                    # Task.is_task_id_available[int(task_id)] = 1
+                    Task.return_task_id(task_id)
                     if len(Task.tasks_dict[owner_id][Task.KEY.period_tasks]) == 0:
                         Task.tasks_dict[owner_id].pop(Task.KEY.period_tasks)
             if len(Task.tasks_dict[owner_id]) == 0:
@@ -373,18 +394,20 @@ if __name__ == '__main__':
     json_path = 'tasks1.json'
 
     print('*' * 100)
-    id = '3367436163'
+    the_id = '3367436163'
     tasks_list = {
+        "九千九百九十九时50m20S后提醒我手冲",
         "每周一晚上提醒我吃饭",
         "30分钟后提醒我第二次打卡",
         "4月20日早上提醒我晚上有实验",
         "每天晚上10点和我说晚安"
     }
     for task in tasks_list:
-        Task(task_str=task, owner_id=id)
+        Task(task_str=task, owner_id=the_id)
 
-    Task.pop_task_from_dict(id, '0')
-    Task.pop_task_from_dict(id, '1')
-    Task.pop_task_from_dict(id, '2')
-    Task.pop_task_from_dict(id, '3')
+    Task.pop_task_from_dict(the_id, '0')
+    Task.pop_task_from_dict(the_id, '1')
+    Task.pop_task_from_dict(the_id, '2')
+    Task.pop_task_from_dict(the_id, '3')
+    Task.pop_task_from_dict(the_id, '4')
     Task.store_tasks_in_json()

@@ -185,6 +185,7 @@ class Task:
                                  task_id=task_id)
         else:
             Task.scheduler.add_job(Task.send_point_remind, 'date', next_run_time=datetime_appointed, id=task_id,
+                                   misfire_grace_time=60,
                                    kwargs={'something': something, 'owner_id': owner_id, 'task_id': task_id})
             print("成功设置定时任务 " + something)
 
@@ -212,11 +213,6 @@ class Task:
                 break
         else:
             if time_delta.years == 0 and time_delta.months == 0:
-                print(datetime_appointed)
-                if time_delta.seconds == 0:
-                    datetime_appointed -= datetime.timedelta(seconds=datetime_appointed.second)
-                    if time_delta.minutes == 0:
-                        datetime_appointed -= datetime.timedelta(seconds=datetime_appointed.minute)
                 Task.scheduler.add_job(
                     func=Task.send_period_remind,
                     trigger='interval',
@@ -226,6 +222,7 @@ class Task:
                     hours=time_delta.hours,
                     minutes=time_delta.minutes,
                     seconds=time_delta.seconds,
+                    misfire_grace_time=60,
                     kwargs={'something': something, 'owner_id': owner_id}
                 )
             else:
@@ -235,6 +232,7 @@ class Task:
                     next_run_time=datetime_appointed,
                     id=task_id,
                     **Task.get_cron_dict(datetime_appointed, time_delta),
+                    misfire_grace_time=60,
                     kwargs={'something': something, 'owner_id': owner_id}
                 )
             # Task.scheduler.print_jobs()
@@ -274,7 +272,10 @@ class Task:
 
     @staticmethod
     def set_scheduler():
-        Task.scheduler = AsyncIOScheduler(timezone='Asia/Shanghai')
+        job_defaults = {
+            'max_instances': 1000
+        }
+        Task.scheduler = AsyncIOScheduler(timezone='Asia/Shanghai', job_defaults=job_defaults)
         Task.scheduler.start()
 
     def add_to_dict(self):
